@@ -1,0 +1,15 @@
+{
+  "name": "decks-guide-to-discord",
+  "version": "1.0.0",
+  "description": "Download Decks Guide to Discord",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "JackyKit",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "textversionjs": "^1.1.3"
+  }
+}
