@@ -5,7 +5,7 @@ Transform and/or post message from randomdice.gg to discord.
 ---
 ## Installation
 ```
-git clone
+git clone git@github.com:JackyKit123/randomdice.gg-to-discord.git
 ```
 
 ```
