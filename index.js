@@ -17,7 +17,9 @@ const textVersion = require('textversionjs');
  */
 async function fetchData() {
     try {
-        const response = await axios.get('https://random-dice-web.firebaseio.com/decks_guide.json');
+        const response = await axios.get(
+            'https://random-dice-web.firebaseio.com/decks_guide.json'
+        );
         return response.data;
     } catch (err) {
         throw err;
@@ -139,12 +141,10 @@ async function makeEmbeds(processedData) {
                     data.title
                 )}`,
                 fields: [
-                    {
-                        name: 'Dice List',
-                        value: data.diceList
-                            .map((list) => list.join(''))
-                            .join('\n'),
-                    },
+                    ...data.diceList.map((list, i) => ({
+                        name: i === 0 ? 'Guide' : '⠀',
+                        value: list.join(' '),
+                    })),
                     ...data.paragraph
                         .filter((p) => p !== '')
                         .map((p, i) => ({
@@ -200,16 +200,19 @@ async function fullRun(WEBHOOK_ID, WEBHOOK_TOKEN) {
         const embeds = await makeEmbeds(data);
         const send = async (i = 0) => {
             try {
-                await axios.post(`https://discordapp.com/api/webhooks/${WEBHOOK_ID}/${WEBHOOK_TOKEN}`, {
-                    embeds: embeds[i]
-                });
+                await axios.post(
+                    `https://discordapp.com/api/webhooks/${WEBHOOK_ID}/${WEBHOOK_TOKEN}`,
+                    {
+                        embeds: embeds[i],
+                    }
+                );
                 if (i + 1 < embeds.length) {
                     setTimeout(() => send(i + 1), 1000);
                 }
             } catch (err) {
                 throw err;
             }
-        }
+        };
         await send();
     } catch (err) {
         console.error(err);
@@ -223,4 +226,4 @@ module.exports = {
     fetchData,
     processData,
     makeEmbeds,
-}
+};
