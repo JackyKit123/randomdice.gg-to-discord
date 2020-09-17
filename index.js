@@ -1,3 +1,4 @@
+const Discord = require('discord.js');
 const axios = require('axios');
 const textVersion = require('textversionjs');
 
@@ -128,19 +129,19 @@ async function processData(rawData, diceEmoji) {
  */
 async function makeEmbeds(processedData) {
     try {
-        return (processedData || (await processData())).map((data) => [
-            {
-                title: `${data.title} (${data.type})`,
-                author: {
-                    name: 'Random Dice Community Website',
-                    url: 'https://randomdice.gg/',
-                    icon_url: 'https://randomdice.gg/title_dice.png',
-                },
-                color: parseInt('#6ba4a5'.replace('#', ''), 16),
-                url: `https://randomdice.gg/decks/guide/${encodeURI(
-                    data.title
-                )}`,
-                fields: [
+        return (processedData || (await processData())).map((data) =>
+            new Discord.MessageEmbed()
+                .setTitle(`${data.title} (${data.type})`)
+                .setAuthor(
+                    'Random Dice Community Website',
+                    'https://randomdice.gg/title_dice.png',
+                    'https://randomdice.gg/'
+                )
+                .setColor('#6ba4a5')
+                .setURL(
+                    `https://randomdice.gg/decks/guide/${encodeURI(data.title)}`
+                )
+                .addFields([
                     ...data.diceList.map((list, i) => ({
                         name: i === 0 ? 'Guide' : '⠀',
                         value: list.join(' '),
@@ -151,13 +152,12 @@ async function makeEmbeds(processedData) {
                             name: i === 0 ? 'Guide' : '⠀',
                             value: p,
                         })),
-                ],
-                footer: {
-                    text: 'randomdice.gg Decks Guide',
-                    icon_url: 'https://randomdice.gg/title_dice.png',
-                },
-            },
-        ]);
+                ])
+                .setFooter(
+                    'randomdice.gg Decks Guide',
+                    'https://randomdice.gg/title_dice.png'
+                )
+        );
     } catch (err) {
         throw err;
     }
@@ -189,23 +189,19 @@ async function fullRun(WEBHOOK_ID, WEBHOOK_TOKEN) {
     try {
         if (!WEBHOOK_ID) {
             console.error('WEBHOOK_ID missing');
-            process.exit(1);
         }
         if (!WEBHOOK_TOKEN) {
-            console.log('WEBHOOK_TOKEN missing');
-            process.exit(1);
+            console.error('WEBHOOK_TOKEN missing');
         }
+        const hook = new Discord.WebhookClient(WEBHOOK_ID, WEBHOOK_TOKEN);
         const rawData = await fetchData();
         const data = await processData(rawData);
         const embeds = await makeEmbeds(data);
         const send = async (i = 0) => {
             try {
-                await axios.post(
-                    `https://discordapp.com/api/webhooks/${WEBHOOK_ID}/${WEBHOOK_TOKEN}`,
-                    {
-                        embeds: embeds[i],
-                    }
-                );
+                await hook.send(undefined, {
+                    embeds: [embeds[i]]
+                });
                 if (i + 1 < embeds.length) {
                     setTimeout(() => send(i + 1), 1000);
                 }
@@ -215,8 +211,7 @@ async function fullRun(WEBHOOK_ID, WEBHOOK_TOKEN) {
         };
         await send();
     } catch (err) {
-        console.error(err);
-        process.exit(1);
+        console.error(err)
     }
 }
 
