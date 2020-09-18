@@ -6,7 +6,7 @@ const textVersion = require('textversionjs');
  * @typedef DeckGuide
  * @type {object}
  * @property {number} id - an unique ID
- * @property {'PvP' | 'PvE' | 'Crew'} type - The type of deck
+ * @property {'PvP' | 'Co-op' | 'Crew'} type - The type of deck
  * @property {string} title - the title of the deck guide
  * @property {number[][]} diceList - the 2-dimensional array for the lists of dice in dice ID
  * @property {string} guide - the paragraph of the guide in form of text/html
@@ -31,7 +31,7 @@ async function fetchData() {
  * @typedef ProcessedData
  * @type {object}
  * @property {string} title - the title of the deck guide
- * @property {'PvP' | 'PvE' | 'Crew'} type - The type of deck
+ * @property {'PvP' | 'Co-op' | 'Crew'} type - The type of deck
  * @property {string[][]} diceList - the 2-dimensional array for the lists of dice in discord emoji ID
  * @property {string} guide - the paragraph of the guide in human text/txt
  */
