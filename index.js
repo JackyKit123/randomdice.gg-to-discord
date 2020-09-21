@@ -132,35 +132,62 @@ async function processData(rawData, diceEmoji) {
  */
 async function makeEmbeds(processedData) {
     try {
-        return (processedData || (await processData())).map((data) =>
-            new Discord.MessageEmbed()
-                .setTitle(`${data.title} (${data.type})`)
-                .setAuthor(
-                    'Random Dice Community Website',
-                    'https://randomdice.gg/title_dice.png',
-                    'https://randomdice.gg/'
-                )
-                .setColor('#6ba4a5')
-                .setURL(
-                    `https://randomdice.gg/decks/guide/${encodeURI(data.title)}`
-                )
-                .addFields([
-                    ...data.diceList.map((list, i) => ({
+        return (processedData || (await processData())).map((data) => {
+            const fields = [
+                ...data.diceList.map((list, i) => ({
+                    name: i === 0 ? 'Guide' : '⠀',
+                    value: list.join(' '),
+                })),
+                ...data.paragraph
+                    .filter((p) => p !== '')
+                    .map((p, i) => ({
                         name: i === 0 ? 'Guide' : '⠀',
-                        value: list.join(' '),
+                        value: p,
                     })),
-                    ...data.paragraph
-                        .filter((p) => p !== '')
-                        .map((p, i) => ({
-                            name: i === 0 ? 'Guide' : '⠀',
-                            value: p,
-                        })),
-                ])
-                .setFooter(
-                    'randomdice.gg Decks Guide',
-                    'https://randomdice.gg/title_dice.png'
-                )
-        );
+            ];
+            return fields.length > 16
+                ? [
+                      new Discord.MessageEmbed()
+                          .setTitle(`${data.title} (${data.type})`)
+                          .setAuthor(
+                              'Random Dice Community Website',
+                              'https://randomdice.gg/title_dice.png',
+                              'https://randomdice.gg/'
+                          )
+                          .setColor('#6ba4a5')
+                          .setURL(
+                              `https://randomdice.gg/decks/guide/${encodeURI(
+                                  data.title
+                              )}`
+                          )
+                          .addFields(fields.slice(0, 16)),
+                      new Discord.MessageEmbed()
+                          .setColor('#6ba4a5')
+                          .addFields(fields.slice(16))
+                          .setFooter(
+                              'randomdice.gg Decks Guide',
+                              'https://randomdice.gg/title_dice.png'
+                          ),
+                  ]
+                : new Discord.MessageEmbed()
+                      .setTitle(`${data.title} (${data.type})`)
+                      .setAuthor(
+                          'Random Dice Community Website',
+                          'https://randomdice.gg/title_dice.png',
+                          'https://randomdice.gg/'
+                      )
+                      .setColor('#6ba4a5')
+                      .setURL(
+                          `https://randomdice.gg/decks/guide/${encodeURI(
+                              data.title
+                          )}`
+                      )
+                      .addFields(fields)
+                      .setFooter(
+                          'randomdice.gg Decks Guide',
+                          'https://randomdice.gg/title_dice.png'
+                      );
+        }).flat();
     } catch (err) {
         throw err;
     }
@@ -203,7 +230,7 @@ async function fullRun(WEBHOOK_ID, WEBHOOK_TOKEN) {
         const send = async (i = 0) => {
             try {
                 await hook.send(undefined, {
-                    embeds: [embeds[i]]
+                    embeds: [embeds[i]],
                 });
                 if (i + 1 < embeds.length) {
                     setTimeout(() => send(i + 1), 1000);
@@ -214,7 +241,7 @@ async function fullRun(WEBHOOK_ID, WEBHOOK_TOKEN) {
         };
         await send();
     } catch (err) {
-        console.error(err)
+        console.error(err);
     }
 }
 
